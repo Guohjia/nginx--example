@@ -1,67 +1,68 @@
-var http = require('http');
-var url  = require('url');  
-http.createServer(function (req, res) {
-    var pathname = url.parse(req.url).pathname;
-	if (pathname ==='/'){
-		res.writeHead(200, {'Content-Type':'text/plain'});
-		res.end('Hello, I\'m an HTTP server.');
-	} else if (pathname === '/about'){
-		res.writeHead(200, {
-			'Content-Type': 'text/plain'
-		});
-		res.end('About us\n');
-	} else if (pathname === '/redirect') {
-		// 重定向
-		res.writeHead(302, {'Location':'/'});
-		res.end();
-	} else{
-		res.writeHead(404, {'Content-Type':'text/plain'});
-		res.end('Page not found\n');
-	}  
-//   res.writeHead(200, {'Content-Type': 'text/plain'});
-//   res.end('Hello World\n');
-}).listen(1337, '127.0.0.1');
+var http=require('http')
+var fs=require('fs')
+var url=require('url')
+// var Cookies=require('cookies')
+// var port=process.env.PORT||8888;
+var session={}
+
+var server=http.createServer(function(request,response){
+    // var cookies=new Cookies(request,response)
+    var temp=url.parse(request.url,true);
+    var path=temp.pathname 
+    var query=temp.query
+    var method=request.method
+    
+    if(path==='/'){
+        var string=fs.readFileSync('./index.html')
+        response.setHeader('Content-Type','text/html;charset=utf-8')
+        // console.log(request.body)
+        response.end(string)
+        // response.setHeader('Content-Type','text/html;charset=utf-8')
+    }else if(path==='/ajax'){   
+        let body=[]
+        console.log(request)
+        request.on('data', (chunk) => {
+            body.push(chunk);                      //=>获取响应的数据,chunk加密,chunk.toString()即为客户端发送过来的数据
+          }).on('end', () => {
+            body = Buffer.concat(body).toString();
+            response.end(body);  //=>发送数据
+          });
+    }else{
+        response.statusCode=404;
+        response.setHeader('Content-Type','text/html;charset=utf-8')
+        response.end('找不到路径,请检查路径是否正确')
+        // console.log(path)
+        // response.end('Not find a')
+    }
 
 
-// var path = require('path');
+}).listen(8888, '127.0.0.1')
+
+console.log('服务器已经为最最聪明的你开启,打开8888端口去搞定一切吧')
+
+
+
 // var http = require('http');
-// var cluster = require('cluster');
+// var url  = require('url');  
+// http.createServer(function (req, res) {
+//     var pathname = url.parse(req.url).pathname;
+// 	if (pathname ==='/'){
+// 		res.writeHead(200, {'Content-Type':'text/plain'});
+// 		res.end('Hello, I\'m an HTTP server.');
+// 	} else if (pathname === '/about'){
+// 		res.writeHead(200, {
+// 			'Content-Type': 'text/plain'
+// 		});
+// 		res.end('About us\n');
+// 	} else if (pathname === '/redirect') {
+// 		// 重定向
+// 		res.writeHead(302, {'Location':'/'});
+// 		res.end();
+// 	} else{
+// 		res.writeHead(404, {'Content-Type':'text/plain'});
+// 		res.end('Page not found\n');
+// 	}  
+// //   res.writeHead(200, {'Content-Type': 'text/plain'});
+// //   res.end('Hello World\n');
+// }).listen(1337, '127.0.0.1');
 
-// var NODE_ENV = process.env.NODE_ENV || 'production';
-// var appName = path.basename(__dirname);
-// var appPort = 9000;
-
-// var numCPUs = require('os').cpus().length;
-
-// if (cluster.isMaster) {
-//     process.title = appName + ' master';
-//     console.log(process.title, 'started');
-
-//     // 根据 CPU 个数来启动相应数量的 worker
-//     // for (var i = 0; i &lt; numCPUs; i++) {
-//     //     cluster.fork();
-//     // }
-
-//     process.on('SIGHUP', function() {
-//         // master 进程忽略 SIGHUP 信号
-//     });
-
-//     cluster.on('death', function(worker) {
-//         console.log(appName, 'worker', '#' + worker.pid, 'died');
-//         cluster.fork();
-//     });
-
-// } else {
-//     process.title = appName + ' worker ' + process.env.NODE_WORKER_ID;
-//     console.log(process.title, '#' + process.pid, 'started');
-
-//     process.on('SIGHUP', function() {
-//         // 接收到 SIGHUP 信号时，关闭 worker
-//         process.exit(0);
-//     });
-
-//     http.Server(function(req, res) {
-//         res.writeHead(200);
-//         res.end('Worker ' + process.env.NODE_WORKER_ID);
-//     }).listen(8000);
-// }
