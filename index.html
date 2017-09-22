@@ -5,23 +5,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>nginx-node</title>
+    <style>
+        ul,li,h1,h2,h3{margin: 0;padding: 0;list-style: none}
+        body{text-align: center}
+        .ct{display: flex;justify-content: center}
+        .dataList{display: flex;}
+        .dataList h3{margin:0 5px;}
+    </style>
 </head>
 
 <body>
-    <button class="btn">点我发送请求</button>
+    <button class="btn">点我请求一个json数据</button>
+    <div class="ct">
+        <ul class="dataList">
+
+        </ul>
+    </div>
+    <!-- <form action="/data" method="GET">
+        <input type="asd">
+    </form> -->
     <script>
+        var ul=document.querySelector('.dataList')
         document.querySelector('.btn').onclick = function () {
+            if(ul.getAttribute('requested')){alert('数据已经请求过了');return}
             var xhr = new XMLHttpRequest()
-            xhr.open('get', './ajax?a=1')
-            xhr.onreadystatechange = function (xhr) {
-                if (xhr.readyState == 4) {
-                    console.log(xhr.responseText)
-                }else{
-                    console.log('fail')
+            xhr.open('GET','/data')
+            xhr.onreadystatechange=function(){
+                if(xhr.readyState==4){
+                   if(xhr.status=200){
+                       let data=JSON.parse(xhr.responseText)
+                       appendNode(data)
+                   }
                 }
             }
             xhr.send()
+        }
+        
+
+        function appendNode(data){
+            var fragNode=document.createDocumentFragment()
+            data.forEach((item)=>{
+                let lict=`
+                    <h3>${item.datatype}<h3>
+                    <span>${item.data}<span>
+                    `
+                let liNode=document.createElement('li')
+                liNode.innerHTML=lict;
+                fragNode.appendChild(liNode)
+            })
+           ul.appendChild(fragNode)
+           ul.setAttribute('requested','yes')       
         }
     </script>
 </body>

@@ -27,6 +27,17 @@ var server=http.createServer(function(request,response){
             body = Buffer.concat(body).toString();
             response.end(body);  //=>发送数据
           });
+    }else if(path==='/data'){
+        var data=fs.readFileSync('./data.json')
+        response.end(data) 
+        // let body=[]
+        // console.log(request.query)
+        // request.on('data', (chunk) => {
+        //     body.push(chunk);                      //=>获取响应的数据,chunk加密,chunk.toString()即为客户端发送过来的数据
+        //   }).on('end', () => {
+        //     body = Buffer.concat(body).toString();
+        //     response.end(body);  //=>发送数据
+        //   });
     }else{
         response.statusCode=404;
         response.setHeader('Content-Type','text/html;charset=utf-8')
