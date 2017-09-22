@@ -1,12 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
 </head>
+
 <body>
-    <div>哈哈哈</div>
+    <button class="btn">点我发送请求</button>
+    <script>
+        document.querySelector('.btn').onclick = function () {
+            var xhr = new XMLHttpRequest()
+            xhr.open('get', './ajax?a=1')
+            xhr.onreadystatechange = function (xhr) {
+                if (xhr.readyState == 4) {
+                    console.log(xhr.responseText)
+                }else{
+                    console.log('fail')
+                }
+            }
+            xhr.send()
+        }
+    </script>
 </body>
+
 </html>
