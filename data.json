@@ -1,5 +1,5 @@
 [
-    {"datatype":"name","data":"ghj"},
-    {"datatype":"sex","data":"male"},
-    {"datatype":"age","data":"20"}
+    {"data":"data-1"},
+    {"data":"data-2"},
+    {"data":"data-3"}
 ]

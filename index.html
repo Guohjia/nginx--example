@@ -7,55 +7,116 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>nginx-node</title>
     <style>
-        ul,li,h1,h2,h3{margin: 0;padding: 0;list-style: none}
-        body{text-align: center}
-        .ct{display: flex;justify-content: center}
-        .dataList{display: flex;}
-        .dataList h3{margin:0 5px;}
+        ul,li,h1,h2,h3,span {margin: 0;padding: 0;list-style: none};body{ text-align: center}
+        .ct { display: flex;justify-content: center}
+        .dataList{margin-top:10px;}
+        .dataList li{margin:30px 0;}
+        .dataList span {margin: 0 5px;}
+        .dataList .data{color:blue}
+        .getjson {margin-right: 100px;}
     </style>
 </head>
 
 <body>
-    <button class="btn">点我请求一个json数据</button>
     <div class="ct">
-        <ul class="dataList">
-
-        </ul>
+        <div class="getjson">
+            <button class="btn1">点我请求一个json数据</button>
+            <ul class="dataList"></ul>
+        </div>
+        <div class="text">
+            <textarea name="text" id="text" cols="30" rows="10"></textarea>
+            <button class="btn2">提交文本</button>
+        </div>
     </div>
-    <!-- <form action="/data" method="GET">
-        <input type="asd">
-    </form> -->
+
     <script>
-        var ul=document.querySelector('.dataList')
-        document.querySelector('.btn').onclick = function () {
+        var ul = document.querySelector('.dataList')
+        // var dataArray = []
+        document.querySelector('.btn1').onclick = function () {
             if(ul.getAttribute('requested')){alert('数据已经请求过了');return}
-            var xhr = new XMLHttpRequest()
-            xhr.open('GET','/data')
-            xhr.onreadystatechange=function(){
-                if(xhr.readyState==4){
-                   if(xhr.status=200){
-                       let data=JSON.parse(xhr.responseText)
-                       appendNode(data)
-                   }
+            ajaxRequest('GET', '/getdata')
+        }
+
+        document.querySelector('.btn2').onclick = function () {
+            let value = document.getElementById('text').value
+            if(value){
+                ajaxRequest('POST', '/addtext', value)
+            }else{
+                alert("输入不能为空")
+            }
+        }
+
+        ul.onclick=function(e){
+            if(e.target.innerText==="置顶"){
+                //发送当前数据到后台以便后台修改数据库顺序
+                let data=e.target.parentNode.childNodes[4].innerText
+                //发送置顶操作请求
+                console.log(e.target.parentNode)
+                ajaxRequest('POST','/totop',data,e.target.parentNode)
+            }
+        }
+
+        document.getElementById('text').onkeypress=function(e){
+            if(e.key==="Enter"){
+                let value = e.target.value
+            if(value){
+                ajaxRequest('POST', '/addtext', value)
+            }else{
+                alert("输入不能为空")
                 }
             }
-            xhr.send()
         }
-        
 
-        function appendNode(data){
-            var fragNode=document.createDocumentFragment()
-            data.forEach((item)=>{
-                let lict=`
-                    <h3>${item.datatype}<h3>
-                    <span>${item.data}<span>
+        function ajaxRequest(method, url, sendata,totopNode) {
+            var xhr = new XMLHttpRequest()
+            xhr.open(method, url)
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+                    if (xhr.status = 200) {
+                        let responsedata = JSON.parse(xhr.responseText)
+                        if (typeof responsedata === 'string') {
+                            addText(responsedata)
+                        }else if(responsedata.totop){
+                            totopNode.parentNode.prepend(totopNode)
+                        }else{
+                            console.log('插入已存数据')
+                            appendNode(responsedata)
+                        }
+                    } else {
+                        console.log('fail')
+                    }
+                }
+            }
+            sendata ? xhr.send(sendata) : xhr.send()
+        }
+
+
+        function appendNode(data) {
+            var fragNode = document.createDocumentFragment()
+            data.forEach((item) => {
+                let licontent = `
+                    <span>${new Date().toLocaleTimeString()}</span><button class="totop">置顶</button>
+                    <h3 class="data">${item.data}</h3>
                     `
-                let liNode=document.createElement('li')
-                liNode.innerHTML=lict;
+                let liNode = document.createElement('li')
+                liNode.innerHTML = licontent;
                 fragNode.appendChild(liNode)
             })
-           ul.appendChild(fragNode)
-           ul.setAttribute('requested','yes')       
+            ul.appendChild(fragNode)
+            ul.setAttribute('requested', 'yes')
+        }
+
+
+        function addText(data){
+            console.log('插入新的内容')
+            let licontent = `
+            <span>${new Date().toLocaleTimeString()}</span><button class="totop">置顶</button>
+            <h3 class="data">${data}</h3>
+            `
+            let liNode = document.createElement('li')
+            liNode.innerHTML = licontent;
+            ul.prepend(liNode)
+            document.getElementById('text').value=''
         }
     </script>
 </body>

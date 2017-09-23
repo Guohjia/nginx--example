@@ -17,27 +17,30 @@ var server=http.createServer(function(request,response){
         response.setHeader('Content-Type','text/html;charset=utf-8')
         // console.log(request.body)
         response.end(string)
-        // response.setHeader('Content-Type','text/html;charset=utf-8')
-    }else if(path==='/ajax'){   
+    }else if(path==='/addtext'){   
         let body=[]
-        console.log(request.query)
+        // console.log(request.query)
         request.on('data', (chunk) => {
             body.push(chunk);                      //=>获取响应的数据,chunk加密,chunk.toString()即为客户端发送过来的数据
           }).on('end', () => {
             body = Buffer.concat(body).toString();
-            response.end(body);  //=>发送数据
+            //可以在这里存储数据到数据库
+            response.end(JSON.stringify(body));  //=>发送数据
           });
-    }else if(path==='/data'){
+    }else if(path==='/getdata'){
         var data=fs.readFileSync('./data.json')
+        // console.log(typeof data)
         response.end(data) 
-        // let body=[]
+    }else if(path==='/totop'){
+        let body=[]
         // console.log(request.query)
-        // request.on('data', (chunk) => {
-        //     body.push(chunk);                      //=>获取响应的数据,chunk加密,chunk.toString()即为客户端发送过来的数据
-        //   }).on('end', () => {
-        //     body = Buffer.concat(body).toString();
-        //     response.end(body);  //=>发送数据
-        //   });
+        request.on('data', (chunk) => {
+            body.push(chunk);                      //=>获取响应的数据,chunk加密,chunk.toString()即为客户端发送过来的数据
+          }).on('end', () => {
+            body = Buffer.concat(body).toString();
+            //可以在这里更新数据库中的顺序
+            response.end(JSON.stringify({"totop":true})) 
+          });
     }else{
         response.statusCode=404;
         response.setHeader('Content-Type','text/html;charset=utf-8')
